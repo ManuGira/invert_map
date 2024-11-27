@@ -38,23 +38,6 @@ def measure_error(xmap, ymap, xmap_inv, ymap_inv):
     return rmse
 
 
-def generate_test_image(N):
-    sh = (N, N)
-    img = np.zeros(sh)
-    img[::10, :] = 1
-    img[:, ::10] = 1
-
-    p0 = N // 10
-    size = N * 8 // 10
-    th = 10
-    img[p0:p0 + size, p0:p0 + th] = 1
-    img[p0:p0 + th, p0:p0 + size * 2 // 3] = 1
-    img[p0 + size // 2:p0 + size // 2 + th, p0:p0 + size // 2] = 1
-
-    img = ndi.gaussian_filter(img, 0.5)
-    return img
-
-
 def benchmark(map_gen, invert_map_function):
     print("Warming up")
     t0 = time.time()
@@ -99,38 +82,16 @@ def benchmark(map_gen, invert_map_function):
     return ns, dt_list, rmse_list
 
 
-def demo(invert_map_function):
-    N = 500
-    # xmap, ymap = map_generator.distortion_map(N)
-    # xmap, ymap = map_generator.rot90(N)
-    xmap, ymap = map_generator.symmetry(N)
-    # xmap, ymap = map_generator.zoom_out(N)
-
-    # xmap, ymap = np.meshgrid(range(N), range(N))
-    # xmap = cv2.rotate(xmap, cv2.ROTATE_90_CLOCKWISE).astype(np.float32)
-    # ymap = cv2.rotate(ymap, cv2.ROTATE_90_CLOCKWISE).astype(np.float32)
-
-    img = generate_test_image(N)
-    warped = cv2.remap(img, xmap, ymap, cv2.INTER_LINEAR)
-
-    cv2.imshow("Warped", warped)
-    cv2.waitKeyEx(1)
-
-    xmap_inv, ymap_inv = invert_map_function(xmap, ymap)
-    unwarped = cv2.remap(warped, xmap_inv, ymap_inv, cv2.INTER_LINEAR)
-
-    cv2.imshow("Unwarped", unwarped)
-    cv2.waitKeyEx(0)
-
-
 def main():
     # iterate over different map
     for map_gen in map_generator.get_list():
         dt_fig = plt.figure()
-        dt_fig.suptitle(f"Computation time [s], {map_gen.__name__}")
-        err_fig = plt.figure()
-        err_fig.suptitle("RMSE")
+        dt_fig.suptitle(f"Computation time ({map_gen.__name__})")
+        plt.xlabel("map size (width)")
 
+        err_fig = plt.figure()
+        err_fig.suptitle(f"Root Mean Square Error ({map_gen.__name__})")
+        plt.xlabel("map size (width)")
         legends = []
 
         for algo in [iterative, barycentric, barycentric2]:
@@ -146,8 +107,4 @@ def main():
 
 
 if __name__ == '__main__':
-    # demo(iterative.invert_map)
-    # demo(barycentric.invert_map)
-    # demo(barycentric2.invert_map)
-    # demo(bilinear.invert_map)
     main()
