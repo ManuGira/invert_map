@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import ndimage as ndi
 
-import barycentric
 import iterative
+import barycentric
+import barycentric2
 import map_generator
 
 
@@ -123,6 +124,7 @@ def demo(invert_map_function):
 
 
 def main():
+    # iterate over different map
     for map_gen in map_generator.get_list():
         dt_fig = plt.figure()
         dt_fig.suptitle(f"Computation time [s], {map_gen.__name__}")
@@ -131,7 +133,7 @@ def main():
 
         legends = []
 
-        for algo in [barycentric, iterative]:
+        for algo in [iterative, barycentric, barycentric2]:
             ns, dts, rmse = benchmark(map_gen, algo.invert_map)
             dt_fig.gca().plot(ns, dts)
             err_fig.gca().plot(ns, rmse)
@@ -146,4 +148,6 @@ def main():
 if __name__ == '__main__':
     # demo(iterative.invert_map)
     # demo(barycentric.invert_map)
+    # demo(barycentric2.invert_map)
+    # demo(bilinear.invert_map)
     main()
