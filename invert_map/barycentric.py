@@ -40,12 +40,12 @@ def invert_map(xmap, ymap, diagnostic=False):
         y2 = ymap.ravel()[k2]
 
         # barycentric coordinates
-        y12 = y1 - y2
-        x02 = x0 - x2
-        x21 = x2 - x1
-        y02 = y0 - y2
+        dy21 = y1 - y2
+        dx20 = x0 - x2
+        dx12 = x2 - x1
+        dy20 = y0 - y2
         # TODO: be carefull when norm is 0
-        norm = y12 * x02 + x21 * y02
+        norm = dy21 * dx20 + dx12 * dy20
 
         i0 = k0 // w
         i1 = k1 // w
@@ -73,12 +73,12 @@ def invert_map(xmap, ymap, diagnostic=False):
             continue
 
         for px in range(xmin, xmax):
-            pwx0 = y12 * (px - x2)
-            pwx1 = -y02 * (px - x2)
+            pwx0 = dy21 * (px - x2)
+            pwx1 = -dy20 * (px - x2)
             for py in range(ymin, ymax):
                 # compute non-normalized weights of barycentric coordinates
-                w0 = (pwx0 + x21 * (py - y2)) / norm
-                w1 = (pwx1 + x02 * (py - y2)) / norm
+                w0 = (pwx0 + dx12 * (py - y2)) / norm
+                w1 = (pwx1 + dx20 * (py - y2)) / norm
                 w2 = 1 - w0 - w1
 
                 # if w0 < 0 or w1 < 0 or w2 < 0:
